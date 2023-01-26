@@ -53,3 +53,41 @@ where nome_dipartimento = 'Ricerca';
 -- Si calcoli il numero dei valori distinti degli stipendi presenti nella base di dati.
 select count(distinct stipendio)
 from impiegato;
+
+-- Selezionare nome, cognome e indirizzo di ogni dipendente che lavora per il dipartimento 'Ricerca'.
+select nome, cognome, indirizzo
+from impiegato I join dipartimento D on I.numero_dipartimento = D.numero_dipartimento
+where nome_dipartimento = 'Ricerca';
+
+-- Selezionare tutti i dipendenti che hanno un supervisore.
+select I.nome as Nome_Impiegato, S.nome as Nome_Supervisore
+from impiegato as I left outer join impiegato as S on I.super_ssn = S.ssn;
+
+-- Per ogni progetto con sede a 'Stafford' si elenchi il numero del progetto, il numero del dipartimento che lo controlla e il cognome del direttore del dipartimento.
+select numero_progetto, progetto.numero_dipartimento, cognome
+from ((progetto join dipartimento d on d.numero_dipartimento = progetto.numero_dipartimento) join impiegato on ssn_dir = impiegato.ssn)
+where  sede_progetto = 'Stafford';
+
+-- Per ciascun dipartimento si trovino il numero del dipartimento, il numero degli impiegati nel dipartimento e il loro stipendio medio.
+select numero_dipartimento, count(*), avg(stipendio)
+from impiegato
+group by numero_dipartimento;
+
+-- Per ciascun progetto si trovino il numero del progetto, il nome del progetto e il numero di impiegati che vi lavorano.
+select numero_progetto, nome_progetto, count(*)
+from progetto P, lavora_su L
+where P.numero_progetto = L.n_progetto
+group by P.numero_progetto, P.nome_progetto;
+
+-- Per ogni progetto in cui lavorano più di due impiegati si trovino il numero del progetto, il nome del progetto, il nome del progetto e il numero degli impiegati che vi partecipano.
+select numero_progetto, nome_progetto, count(*)
+from progetto P, lavora_su L
+where P.numero_progetto = L.n_progetto
+group by P.numero_progetto, P.nome_progetto
+having count(*) > 2;
+
+-- Per ciascun progetto si trovino il numero del progetto, il nome del progetto e il numero degli impiegati del dipartimento 5 che vi prendono parte.
+select numero_progetto, nome_progetto, count(*)
+from progetto P, lavora_su L, impiegato I
+where P.numero_progetto = L.n_progetto and I.ssn = L.ssn_i and I.numero_dipartimento = 5
+group by numero_progetto, nome_progetto;
